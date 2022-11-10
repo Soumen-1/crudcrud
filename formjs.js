@@ -6,13 +6,15 @@ sub.addEventListener('click',(event)=>{
     event.preventDefault();
     Name=document.querySelector('#name').value;
     email=document.querySelector('#email').value;
+    ph=document.querySelector('#phNo').value;
     if(Name=="") return;
     let key={}
     key.Email=email;
     key.Name=Name;
+    key.ph=ph;
    axios.post(endpoint+'/detail',key)
    .then(res=>console.log(res))
-   .catch(err=>console.log("soumne"))
+   .catch(err=>console.error(err))
 });
 
 //show details
@@ -40,8 +42,6 @@ showbtn.addEventListener('click',(e)=>{
     .then(res=>{
         arr=res.data;
         console.log(arr);
-    
-    
     arr.forEach((e)=>{
         tr=document.createElement('tr');
         td1=document.createElement('td');
@@ -51,6 +51,7 @@ showbtn.addEventListener('click',(e)=>{
         let text=""
         text+="Name : "+ e.Name+'<br>';
         text+="Email : "+ e.Email+'<br>';
+        text+="Phone No : "+ e.ph+'<br>';
         td2.innerHTML=text;
         td3.innerHTML='<button>Delete</button><br><a href="#main" style="text-decoration:none;"><button>Edit</button></a>'
         tr.appendChild(td1);
