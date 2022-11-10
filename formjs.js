@@ -1,6 +1,7 @@
 sub=document.querySelector('#submit');
 let endpoint= 'https://crudcrud.com/api/6fc3357694cf4fcbb84827a006d808e7';
 
+
 //submit details
 sub.addEventListener('click',(event)=>{
     event.preventDefault();
@@ -78,8 +79,19 @@ Array.from(input).forEach((e)=>{
 //remove Child
 userDetail.addEventListener('click',(event)=>{
     if(event.target.classList.contains('delete')){
-        if(confirm('Are you sure ?'))
-        event.target.parentNode.parentNode.parentNode.removeChild(event.target.parentNode.parentNode);
+        if(confirm('Are you sure ?')){
+            let name= event.target.parentNode.parentNode.children[0].innerText;
+            event.target.parentNode.parentNode.parentNode.removeChild(event.target.parentNode.parentNode);
+            axios.get(endpoint+'/detail')
+            .then(res=>{
+                res.data.forEach(e=>{
+                    if(e.Name==name){
+                        axios.delete(`${endpoint}/detail/${e._id}`);
+                    }
+                })
+            })
+            .catch(err=>console.error(err))
+        }
     } 
     else if(event.target.classList.contains('Edit')){
         if(confirm('you can change only email and roll. Do you want to change ?')){
