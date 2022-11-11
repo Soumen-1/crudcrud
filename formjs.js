@@ -1,8 +1,16 @@
 sub=document.querySelector('#submit');
-let endpoint= 'https://crudcrud.com/api/6fc3357694cf4fcbb84827a006d808e7';
-
+let token='303698a1adfc49f5ab604a9f3e532141'
+let endpoint= 'https://crudcrud.com/api/'+token;
 
 //submit details
+//class of flag
+class flag{
+    static updateFlag=false;
+    static updateData='';
+    static updateMail='';
+}
+
+
 sub.addEventListener('click',(event)=>{
     event.preventDefault();
     Name=document.querySelector('#name').value;
@@ -42,7 +50,6 @@ showbtn.addEventListener('click',(e)=>{
     axios.get(endpoint+'/detail')
     .then(res=>{
         arr=res.data;
-        console.log(arr);
     arr.forEach((e)=>{
         tr=document.createElement('tr');
         td1=document.createElement('td');
@@ -50,9 +57,9 @@ showbtn.addEventListener('click',(e)=>{
         td3=document.createElement('td');
         td1.appendChild(document.createTextNode(e.Name));
         let text=""
-        text+="Name : "+ e.Name+'<br>';
-        text+="Email : "+ e.Email+'<br>';
-        text+="Phone No : "+ e.ph+'<br>';
+        text+=`Name : <span>${e.Name}</span> <br>`;
+        text+=`Email : <span>${e.Email}</span> <br>`;
+        text+=`Phone No : <span>${e.ph}</span> <br>`;
         td2.innerHTML=text;
         td3.innerHTML='<button>Delete</button><br><a href="#main" style="text-decoration:none;"><button>Edit</button></a>'
         tr.appendChild(td1);
@@ -80,12 +87,13 @@ Array.from(input).forEach((e)=>{
 userDetail.addEventListener('click',(event)=>{
     if(event.target.classList.contains('delete')){
         if(confirm('Are you sure ?')){
-            let name= event.target.parentNode.parentNode.children[0].innerText;
+            let email= event.target.parentNode.parentNode.children[1].querySelectorAll('span')[1].innerText;
+            //console.log(email)
             event.target.parentNode.parentNode.parentNode.removeChild(event.target.parentNode.parentNode);
             axios.get(endpoint+'/detail')
             .then(res=>{
                 res.data.forEach(e=>{
-                    if(e.Name==name){
+                    if(e.Email==email){
                         axios.delete(`${endpoint}/detail/${e._id}`);
                     }
                 })
@@ -94,13 +102,49 @@ userDetail.addEventListener('click',(event)=>{
         }
     } 
     else if(event.target.classList.contains('Edit')){
-        if(confirm('you can change only email and roll. Do you want to change ?')){
-            Name=event.target.parentNode.parentNode.parentNode.firstElementChild.innerText;
-            ele=JSON.parse(localStorage.getItem(Name));
-            document.querySelector("#name").value=ele.Name;
-            document.querySelector("#roll").value=ele.Roll;
-            document.querySelector("#email").value=ele.Email;
+        if(confirm('you can change only name and phone no. Do you want to change ?')){
+            flag.updateFlag=true;
+            flag.updateData= event.target.parentNode.parentNode.parentNode.children[1].querySelectorAll('span');
+            flag.updateMail=flag.updateData[1].innerText;
+            document.querySelector("#name").value=flag.updateData[0].innerText;
+            document.querySelector("#email").value=flag.updateData[1].innerText;
+            document.querySelector("#phNo").value=flag.updateData[2].innerText;
+
         }
+    }
+});
+document.querySelector('#update').addEventListener('click',(event)=>{
+    event.preventDefault();
+    if(flag.updateFlag){
+        let data=flag.updateData;
+        let putData={
+            Name : `${document.querySelector("#name").value}`,
+            Email: `${document.querySelector("#email").value}`,
+            ph :`${document.querySelector("#phNo").value}`
+        }
+        console.log(flag.updateMail)
+        axios.get(endpoint+'/detail')
+        .then(res=>{
+            res.data.forEach(e=>{
+                if(e.Email==flag.updateMail){
+                    axios.put(`${endpoint}/detail/${e._id}`,putData)
+                    .then(res=>console.log(res.data))
+                    .catch(err=>console.error(err))
+                }
+            });
+            flag.updateFlag=false;
+            flag.updateData='';
+            flag.updateMail='';
+        })
+        .catch(err=>{
+            console.error(err);
+            flag.updateFlag=false;
+            flag.updateData='';
+            flag.updateMail='';
+        });
+    }
+    else{
+        alert('Nothing to Edit');
     }
 });
 //hover opacity on the add user
